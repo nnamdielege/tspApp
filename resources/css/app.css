@@ -1,0 +1,6 @@
+/* Import Bootstrap */
+@import '~bootstrap/dist/css/bootstrap.min.css';
+
+/* Import SweetAlert2 */
+@import '~sweetalert2/dist/sweetalert2.min.css';
+

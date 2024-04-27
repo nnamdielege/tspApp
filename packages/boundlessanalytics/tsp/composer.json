@@ -1,0 +1,21 @@
+{
+    "name": "boundlessanalytics/tsp",
+    "description": "This package implements the Traveling Salesman Problem optimizing on distance",
+    "type": "project",
+    "require": {
+        "php": "8.2.4",
+        "laravel/laravel": "^10.3"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Boundlessanalytics\\Tsp\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "nnamdielege",
+            "email": "nnamdielege@yahoo.com"
+        }
+    ]
+}
