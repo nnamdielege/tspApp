@@ -3,7 +3,7 @@
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\ShortestPathController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\URL;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -16,10 +16,6 @@ use Illuminate\Support\Facades\URL;
 |
 */
 
-// Force HTTPS middleware
-if (config('app.env') === 'production') {
-    URL::forceScheme('https');
-}
 
 // Route::get('/', function () {
 //     return view('welcome');
