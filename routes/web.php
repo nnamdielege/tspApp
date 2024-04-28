@@ -3,6 +3,7 @@
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\ShortestPathController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\URL;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,18 +16,25 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Force HTTPS middleware
+if (config('app.env') === 'production') {
+    URL::forceScheme('https');
+}
+
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
 // Route::get('/searchPath', function () {
 //     return view('searchPath');
 // });
 
-Route::get('/searchPath', function () {
-    return view('app');
-})->name('application');
+// Route::get('/searchPath', function () {
+//     return view('app');
+// })->name('application');
 
 Route::post('/deriveTSP', [ShortestPathController::class, 'deriveTSP'])->name('deriveTSP');
 
-Route::get('address', [AddressController::class, 'index']);
+// Route::get('address', [AddressController::class, 'index']);
+
+Route::get('/', [AddressController::class, 'index']);

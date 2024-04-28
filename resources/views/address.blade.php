@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <title>Optimal Path based on TSP</title>
     {{-- @vite('resources/css/app.css') --}}
     <!-- Bootstrap CSS -->
@@ -103,6 +104,7 @@
 
         // Function to send data to Laravel route
         function sendToBackend(locations, optimize) {
+            // console.log(optimize);
             // Construct the data object
             var data = {
                 locations: locations,
@@ -155,7 +157,8 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'An error has occured, please try again later' 
+                    text: 'Error:'+ error.message
+                    // text: 'An error has occured, please try again later' 
                 });
                 console.error('Error:', error.message);  // Extract error message from error object
             });
