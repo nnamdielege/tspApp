@@ -25,8 +25,8 @@
                         <h5 class="card-title">Locate Optimal Path</h5>
                         <form id="pathForm">
                             <div class="form-group mb-2">
-                                <label class="form-label">Number of paths</label>
-                                <input id="paths" class="form-control" min="3" type="number" placeholder="Enter the number of paths" required>                           
+                                <label class="form-label">Number of stops</label>
+                                <input id="paths" class="form-control" min="3" type="number" placeholder="Enter the number of stops" required>                           
                             </div>
                             <div class="form-group mb-2">
                                 <label class="form-label">Optimise on:</label>
@@ -143,7 +143,7 @@
                 // });
                 Swal.fire({
                     icon: 'success',
-                    title: 'Result',
+                    title: 'Optimal path result',
                     html: '<p>' + data['optimalPath'] + '</p>' +
                         '<p>Total Weight: ' + data['totalWeight'] + '</p>'
                 });

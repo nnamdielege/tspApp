@@ -186,15 +186,33 @@ class ShortestPathController extends Controller
         return $responseData;
     }
 
+    // private function formatTourWithNames(array $tour, array $pointNames): string
+    // {
+    //     // Map tour indices to point names
+    //     $namedTour = array_map(function ($index) use ($pointNames) {
+    //         return $pointNames[$index];
+    //     }, $tour);
+
+    //     // Format the tour for output
+    //     $formattedTour = implode(" ➔ ", $namedTour);
+
+    //     return $formattedTour;
+    // }
     private function formatTourWithNames(array $tour, array $pointNames): string
     {
-        // Map tour indices to point names
-        $namedTour = array_map(function ($index) use ($pointNames) {
-            return $pointNames[$index];
-        }, $tour);
+        // Initialize an empty string to store formatted tour
+        $formattedTour = '';
 
-        // Format the tour for output
-        $formattedTour = implode(" ➔ ", $namedTour);
+        // Initialize a counter for numbering the locations
+        $counter = 1;
+
+        // Iterate through the tour indices
+        foreach ($tour as $index) {
+            // Append the numbered point name to the formatted tour string
+            $formattedTour .= $counter . ". " . $pointNames[$index] . "<br>";
+            // Increment the counter
+            $counter++;
+        }
 
         return $formattedTour;
     }
