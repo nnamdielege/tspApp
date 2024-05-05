@@ -42,25 +42,7 @@ distances = [
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Distance Matrix</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-    </style>
-</head>
+
 <body>
     <h2>Distance Matrix</h2>
     <table>
@@ -113,8 +95,6 @@ distances = [
             <td>0</td>
         </tr>
     </table>
-</body>
-</html>
 
 For example, the distance from city A to city B is 3, from A to C is 2, and so on.
 
