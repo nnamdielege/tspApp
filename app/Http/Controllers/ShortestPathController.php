@@ -6,6 +6,8 @@ use App\CustomClasses\TSPSolver;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ShortestPathController extends Controller
@@ -31,6 +33,9 @@ class ShortestPathController extends Controller
             $data = $request->json()->all();
             $locations = $data['locations'];
             $optimize = $data['optimize'];
+
+            // Clear the cache if request data is different from the previous request
+            $this->clearCacheIfRequestChanged($locations, $optimize);
 
             // Set the points array based on the provided locations
             $points = $this->calculateDistances($locations, $optimize);
@@ -61,6 +66,22 @@ class ShortestPathController extends Controller
             return response()->json([
                 'error' => 'An error occurred: ' . $e->getMessage()
             ], 500); // Internal Server Error status code
+        }
+    }
+
+    private function clearCacheIfRequestChanged(array $locations, string $optimize)
+    {
+        $cacheKey = 'tsp_request_data';
+        $previousRequestData = Cache::get($cacheKey);
+
+        // Generate a unique identifier for the current request data
+        $currentRequestDataIdentifier = md5(serialize([$locations, $optimize]));
+
+        if ($previousRequestData !== $currentRequestDataIdentifier) {
+            // Clear the cache if the current request data is different from the previous request
+            Cache::flush();
+            // Store the current request data identifier in the cache
+            Cache::put($cacheKey, $currentRequestDataIdentifier);
         }
     }
 
@@ -135,6 +156,9 @@ class ShortestPathController extends Controller
             $points[] = $distancesFromOrigin;
         }
 
+        // Log the $points array
+        Log::info('Distances between locations:', $points);
+
         return $points;
     }
 
@@ -147,7 +171,6 @@ class ShortestPathController extends Controller
         $valueKey = ($optimize === 'distance') ? 'distance' : 'duration';
 
         $weight = $response['rows'][0]['elements'][0][$valueKey]['value'];
-
 
         return $weight;
     }
@@ -180,8 +203,11 @@ class ShortestPathController extends Controller
         // Process response
         $responseData = json_decode($response->getBody(), true);
 
+        // Log the responseData
+        Log::info('Distance matrix API response:', $responseData);
+
         // Cache the data for future use
-        cache()->put($cacheKey, $responseData, now()->addHours(24)); // Adjust the cache duration as needed
+        cache()->put($cacheKey, $responseData, now()->addSeconds(5)); // Adjust the cache duration as needed
 
         return $responseData;
     }
