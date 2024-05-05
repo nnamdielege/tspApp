@@ -1,66 +1,89 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Nearest Neighbor Heuristic for Traveling Salesman Problem with Google Maps Distance Matrix API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This repository provides an implementation of the nearest neighbor heuristic algorithm in PHP for solving the Traveling Salesman Problem (TSP) using data from Google Maps Distance Matrix API.
 
-## About Laravel
+## Introduction
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+The Traveling Salesman Problem (TSP) is a classic problem in computer science and optimization. Given a list of cities and the distances between each pair of cities, the task is to find the shortest possible route that visits each city exactly once and returns to the starting city.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+The nearest neighbor heuristic is a simple and effective algorithm for finding an approximate solution to the TSP. It starts from an arbitrary city and repeatedly selects the nearest unvisited city as the next destination until all cities are visited, forming a tour.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Google Maps Distance Matrix API
 
-## Learning Laravel
+Google Maps Distance Matrix API provides the distance and travel time between multiple origins and destinations. You can use this API to retrieve the distance matrix between cities, which serves as input for the TSP solver.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+To use the Google Maps Distance Matrix API:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+1. [Get an API key](https://developers.google.com/maps/documentation/distance-matrix/get-api-key) from the Google Cloud Console.
+2. Construct a request specifying the origins and destinations (cities) for which you want to retrieve distances.
+3. Parse the response to extract the distance matrix.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Algorithm Overview
 
-## Laravel Sponsors
+1. **Initialization**: Choose a starting city.
+2. **Main Loop**:
+    - Repeat until all cities are visited:
+        1. Find the nearest unvisited city to the current city.
+        2. Add it to the tour and mark it as visited.
+3. **Completion**: Return to the starting city to complete the tour.
+4. **Output**: The tour formed is an approximate solution to the TSP.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Philosophy and Example
 
-### Premium Partners
+Suppose we have 5 cities: A, B, C, D, and E, and we want to find the shortest route that visits each city exactly once and returns to the starting city. We represent the distances between these cities in a matrix:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+distances = [
+[0, 3, 2, 4, 1],
+[3, 0, 5, 2, 6],
+[2, 5, 0, 3, 2],
+[4, 2, 3, 0, 4],
+[1, 6, 2, 4, 0]
+];
 
-## Contributing
+For example, the distance from city A to city B is 3, from A to C is 2, and so on.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Now, let's apply the nearest neighbor heuristic starting from city A.
 
-## Code of Conduct
+Step 1:
+Start from city A.
+Visit the nearest unvisited city, which is city E (distance 1).
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Step 2:
+From city E, the nearest unvisited city is city C (distance 2).
 
-## Security Vulnerabilities
+Step 3:
+From city C, the nearest unvisited city is city D (distance 3).
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Step 4:
+From city D, the nearest unvisited city is city B (distance 2).
+
+Step 5:
+From city B, the nearest unvisited city is city A (distance 3).
+
+Tour:
+The tour formed is: A -> E -> C -> D -> B -> A.
+
+This tour visits each city exactly once and returns to the starting city.
+
+Note:
+The total distance of this tour is the sum of the distances between consecutive cities:
+1 + 2 + 3 + 2 + 3 = 11
+
+## Usage
+
+1. Retrieve the distance matrix between cities using Google Maps Distance Matrix API.
+2. Parse the response and extract the distances.
+3. Call the `nearestNeighbor` method from the `TSPSolver` class, passing the distance matrix as an argument.
+4. The method returns the tour representing an approximate solution to the TSP.
+
+## Example
+
+Suppose you want to find the shortest route between cities A, B, C, D, and E using Google Maps Distance Matrix API. After retrieving the distances, you can input them into the nearest neighbor heuristic algorithm to find an approximate solution to the TSP.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+Created by Nnamdi Elege
