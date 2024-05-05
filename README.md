@@ -32,19 +32,11 @@ To use the Google Maps Distance Matrix API:
 
 Suppose we have 5 cities: A, B, C, D, and E, and we want to find the shortest route that visits each city exactly once and returns to the starting city. We represent the distances between these cities in a matrix:
 
-distances = [
-[0, 3, 2, 4, 1],
-[3, 0, 5, 2, 6],
-[2, 5, 0, 3, 2],
-[4, 2, 3, 0, 4],
-[1, 6, 2, 4, 0]
-];
-
 <!DOCTYPE html>
 <html lang="en">
 
 <body>
-    <h2>Distance Matrix</h2>
+    <h2>Distance Matrix for the 5 cities are: </h2>
     <table>
         <tr>
             <th></th>
