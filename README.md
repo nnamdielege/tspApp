@@ -121,7 +121,7 @@ The total distance of this tour is the sum of the distances between consecutive 
 
 1. Retrieve the distance matrix between cities using Google Maps Distance Matrix API.
 2. Parse the response and extract the distances.
-3. Call the `nearestNeighbor` method from the `TSPSolver` class, passing the distance matrix as an argument.
+3. Call the `nearestNeighbour` method from the `TSPSolver` class, passing the distance matrix as an argument.
 4. The method returns the tour representing an approximate solution to the TSP.
 
 ## Example
