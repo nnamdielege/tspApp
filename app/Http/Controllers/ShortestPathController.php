@@ -41,7 +41,7 @@ class ShortestPathController extends Controller
             $points = $this->calculateDistances($locations, $optimize);
 
             // Find the optimal route using the TSPSolver
-            $tour = TSPSolver::nearestNeighbor($points);
+            $tour = TSPSolver::nearestNeighbour($points);
 
             // Remove the starting point from the tour
             array_pop($tour);

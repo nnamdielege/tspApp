@@ -4,7 +4,7 @@ namespace App\CustomClasses;
 
 class TSPSolver
 {
-    public static function nearestNeighbor($points)
+    public static function nearestNeighbour($points)
     {
         $numPoints = count($points);
         $visited = array_fill(0, $numPoints, false);

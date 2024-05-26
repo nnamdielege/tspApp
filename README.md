@@ -1,12 +1,12 @@
-# Nearest Neighbor Heuristic for Traveling Salesman Problem with Google Maps Distance Matrix API
+# Nearest Neighbour Heuristic for Traveling Salesman Problem with Google Maps Distance Matrix API
 
-This repository provides an implementation of the nearest neighbor heuristic algorithm in PHP for solving the Traveling Salesman Problem (TSP) using data from Google Maps Distance Matrix API.
+This repository provides an implementation of the nearest neighbour heuristic algorithm in PHP for solving the Traveling Salesman Problem (TSP) using data from Google Maps Distance Matrix API.
 
 ## Introduction
 
 The Traveling Salesman Problem (TSP) is a classic problem in computer science and optimization. Given a list of cities and the distances between each pair of cities, the task is to find the shortest possible route that visits each city exactly once and returns to the starting city.
 
-The nearest neighbor heuristic is a simple and effective algorithm for finding an approximate solution to the TSP. It starts from an arbitrary city and repeatedly selects the nearest unvisited city as the next destination until all cities are visited, forming a tour.
+The nearest neighbour heuristic is a simple and effective algorithm for finding an approximate solution to the TSP. It starts from an arbitrary city and repeatedly selects the nearest unvisited city as the next destination until all cities are visited, forming a tour.
 
 ## Google Maps Distance Matrix API
 
@@ -90,7 +90,7 @@ Suppose we have 5 cities: A, B, C, D, and E, and we want to find the shortest ro
 
 For example, the distance from city A to city B is 3, from A to C is 2, and so on.
 
-Now, let's apply the nearest neighbor heuristic starting from city A.
+Now, let's apply the nearest neighbour heuristic starting from city A.
 
 Step 1:
 Start from city A.
@@ -126,7 +126,7 @@ The total distance of this tour is the sum of the distances between consecutive 
 
 ## Example
 
-Suppose you want to find the shortest route between cities A, B, C, D, and E using Google Maps Distance Matrix API. After retrieving the distances, you can input them into the nearest neighbor heuristic algorithm to find an approximate solution to the TSP.
+Suppose you want to find the shortest route between cities A, B, C, D, and E using Google Maps Distance Matrix API. After retrieving the distances, you can input them into the nearest neighbour heuristic algorithm to find an approximate solution to the TSP.
 
 ## License
 
