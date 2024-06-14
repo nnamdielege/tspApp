@@ -34,3 +34,5 @@ Route::post('/deriveTSP', [ShortestPathController::class, 'deriveTSP'])->name('d
 // Route::get('address', [AddressController::class, 'index']);
 
 Route::get('/', [AddressController::class, 'index']);
+
+Route::get('/tsp', [AddressController::class, 'tspVue']);
