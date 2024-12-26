@@ -171,6 +171,9 @@
                 optimize: optimize
             };
 
+            console.log('Locations:', locations);
+            console.log('Optimised for :', optimize);
+
             Swal.fire({
                 title: 'Processing...',
                 html: 'Please wait while we calculate the optimal path.',
@@ -219,7 +222,6 @@
                 console.error('Error:', error.message);
             });
         }
-
     </script>
 </body>
 </html>
