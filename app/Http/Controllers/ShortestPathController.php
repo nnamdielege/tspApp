@@ -14,11 +14,11 @@ class ShortestPathController extends Controller
 {
     public function deriveTSP(Request $request)
     {
-        // return response()->json([
-        //     'optimalPath' => '',
-        //     'totalWeight' => '',
-        //     'locations' => $request->input('locations')
-        // ], 200); // Just for tests
+        return response()->json([
+            'optimalPath' => '',
+            'totalWeight' => '',
+            'locations' => gettype($request->input('locations'))
+        ], 200); // Just for tests
         try {
             // Validate the request data
             $validator = Validator::make($request->all(), [
@@ -139,7 +139,6 @@ class ShortestPathController extends Controller
         }
     }
 
-
     private function calculateDistances(array $locations, string $optimize): array
     {
         // Initialize an empty array to store distances
@@ -184,7 +183,6 @@ class ShortestPathController extends Controller
 
         return $weight;
     }
-
 
     private function getDistanceMatrix(string $origin, string $destination): array
     {
