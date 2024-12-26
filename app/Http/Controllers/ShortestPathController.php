@@ -15,7 +15,7 @@ class ShortestPathController extends Controller
     public function deriveTSP(Request $request)
     {
         return response()->json([
-            'error' => 'Tests'
+            'message' => 'Tests'
         ], 200); // Just for tests
         try {
             // Validate the request data
