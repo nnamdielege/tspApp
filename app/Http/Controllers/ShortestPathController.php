@@ -26,6 +26,7 @@ class ShortestPathController extends Controller
             if ($validator->fails()) {
                 return response()->json([
                     'error' => $validator->errors()->first() ?: 'Invalid input data.'
+                    // 'error' => $validator->errors()->first()
                 ], 422); // Unprocessable Entity
             }
 
@@ -42,12 +43,6 @@ class ShortestPathController extends Controller
 
             // Set the points array based on the provided locations
             $points = $this->calculateDistances($locations, $optimize);
-
-            return response()->json([
-                'optimalPath' => '',
-                'totalWeight' => $points,
-                'locations' => ''
-            ], 200); // Just for tests
 
             // Find the optimal route using the TSPSolver
             $tour = TSPSolver::nearestNeighbour($points);
