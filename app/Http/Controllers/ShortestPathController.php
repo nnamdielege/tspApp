@@ -33,12 +33,6 @@ class ShortestPathController extends Controller
             $locations = $request->input('locations');
             $optimize = $request->input('optimize');
 
-            return response()->json([
-                'optimalPath' => $optimize,
-                'totalWeight' => $optimize,
-                'locations' => $locations,
-            ]);
-
             // Clear the cache if request data is different from the previous request
             $this->clearCacheIfRequestChanged($locations, $optimize);
 
