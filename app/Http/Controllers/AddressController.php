@@ -10,4 +10,9 @@ class AddressController extends Controller
     {
         return view('address');
     }
+
+    public function tspVue()
+    {
+        return view('tsp');
+    }
 }
