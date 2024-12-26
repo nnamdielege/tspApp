@@ -14,11 +14,6 @@ class ShortestPathController extends Controller
 {
     public function deriveTSP(Request $request)
     {
-        // return response()->json([
-        //     'optimalPath' => '',
-        //     'totalWeight' => gettype($request->input('locations')),
-        //     'locations' => ''
-        // ], 200); // Just for tests
         try {
             // Validate the request data
             $validator = Validator::make($request->all(), [
@@ -47,6 +42,13 @@ class ShortestPathController extends Controller
 
             // Set the points array based on the provided locations
             $points = $this->calculateDistances($locations, $optimize);
+
+
+            return response()->json([
+                'optimalPath' => '',
+                'totalWeight' => $points,
+                'locations' => ''
+            ], 200); // Just for tests
 
             // Find the optimal route using the TSPSolver
             $tour = TSPSolver::nearestNeighbour($points);
