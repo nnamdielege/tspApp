@@ -16,8 +16,8 @@ class ShortestPathController extends Controller
     {
         return response()->json([
             'optimalPath' => '',
-            'totalWeight' => '',
-            'locations' => gettype($request->input('locations'))
+            'totalWeight' => gettype($request->input('locations')),
+            'locations' => ''
         ], 200); // Just for tests
         try {
             // Validate the request data
