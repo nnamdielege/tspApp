@@ -25,14 +25,13 @@ class ShortestPathController extends Controller
             // If validation fails, return an error response
             if ($validator->fails()) {
                 return response()->json([
-                    'error' => $validator->errors()->first()
-                ], 422); // Unprocessable Entity status code
+                    'error' => $validator->errors()->first() ?: 'Invalid input data.'
+                ], 422); // Unprocessable Entity
             }
 
             // If validation passes, retrieve the data
-            $data = $request->json()->all();
-            $locations = $data['locations'];
-            $optimize = $data['optimize'];
+            $locations = $request->input('locations');
+            $optimize = $request->input('optimize');
 
             return response()->json([
                 'optimalPath' => $optimize,
@@ -49,14 +48,13 @@ class ShortestPathController extends Controller
             // Find the optimal route using the TSPSolver
             $tour = TSPSolver::nearestNeighbour($points);
 
-            // Remove the starting point from the tour
-            array_pop($tour);
+            // Remove the starting point (to avoid duplication)
+            if (!empty($tour)) {
+                array_pop($tour);
+            }
 
-            // Get the names of the points
-            $pointNames = $locations;
-
-            // Format the tour with point names
-            $formattedTour = $this->formatTourWithNames($tour, $pointNames);
+            // Format the tour with location names
+            $formattedTour = $this->formatTourWithNames($tour, $locations);
 
             // Calculate the total weight of the path
             $totalWeight = $this->calculateTotalWeight($tour, $locations, $optimize);
@@ -68,6 +66,9 @@ class ShortestPathController extends Controller
                 'locations' => $locations,
             ]);
         } catch (Exception $e) {
+            // Log the exception for debugging
+            Log::error('Error in deriveTSP:', ['error' => $e->getMessage()]);
+
             // Return error response on exception
             return response()->json([
                 'error' => 'An error occurred: ' . $e->getMessage()
