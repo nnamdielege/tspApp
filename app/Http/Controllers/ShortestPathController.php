@@ -43,7 +43,6 @@ class ShortestPathController extends Controller
             // Set the points array based on the provided locations
             $points = $this->calculateDistances($locations, $optimize);
 
-
             return response()->json([
                 'optimalPath' => '',
                 'totalWeight' => $points,
