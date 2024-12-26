@@ -162,7 +162,7 @@
                     text: 'Error:'+ error.message
                     // text: 'An error has occured, please try again later' 
                 });
-                console.error('Error:', error);  // Extract error message from error object
+                console.error('Error:', error.message);  // Extract error message from error object
             });
         }
     </script>
