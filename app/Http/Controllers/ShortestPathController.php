@@ -35,8 +35,12 @@ class ShortestPathController extends Controller
             }
 
             // If validation passes, retrieve the data
-            $locations = $request->input('locations');
-            $optimize = $request->input('optimize');
+            // $locations = $request->input('locations');
+            // $optimize = $request->input('optimize');
+
+            $data = $request->json()->all();
+            $locations = $data['locations'];
+            $optimize = $data['optimize'];
 
             // Clear the cache if request data is different from the previous request
             $this->clearCacheIfRequestChanged($locations, $optimize);
