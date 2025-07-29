@@ -2,6 +2,16 @@
 
 This repository provides an implementation of the nearest neighbour heuristic algorithm in PHP for solving the Traveling Salesman Problem (TSP) using data from Google Maps Distance Matrix API.
 
+---
+
+## 🚀 Live Demo
+
+You can try out the live demo of the TSP Nearest Neighbour solution here:
+
+👉 **[View Live Demo](https://tspapp.boundlessanalytics.com.au)**
+
+---
+
 ## Introduction
 
 The Traveling Salesman Problem (TSP) is a classic problem in computer science and optimization. Given a list of cities and the distances between each pair of cities, the task is to find the shortest possible route that visits each city exactly once and returns to the starting city.
@@ -34,7 +44,6 @@ Suppose we have 5 cities: A, B, C, D, and E, and we want to find the shortest ro
 
 <!DOCTYPE html>
 <html lang="en">
-
 <body>
     <h2>Distance Matrix for the 5 cities are: </h2>
     <table>
