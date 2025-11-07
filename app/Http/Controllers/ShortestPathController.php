@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\CustomClasses\TSPSolver;
+use App\Services\TSPSolver;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
