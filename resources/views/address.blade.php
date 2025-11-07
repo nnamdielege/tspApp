@@ -106,66 +106,7 @@
         }
 
         // Function to send data to Laravel route
-        // function sendToBackend(locations, optimize) {
-        //     // console.log(optimize);
-        //     // Construct the data object
-        //     var data = {
-        //         locations: locations,
-        //         optimize: optimize
-        //     };
-
-        //     // Show loading Swal
-        //     Swal.fire({
-        //         title: 'Processing...',
-        //         html: 'Please wait while we calculate the optimal path.',
-        //         allowOutsideClick: false,
-        //         onBeforeOpen: () => {
-        //             Swal.showLoading();
-        //         }
-        //     });
-
-        //     // Send data to Laravel route using fetch API
-        //     fetch("{{ route('deriveTSP') }}", {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //             'X-CSRF-TOKEN': '{{ csrf_token() }}' // Add CSRF token
-        //         },
-        //         body: JSON.stringify(data)
-        //     })
-        //     .then(response => response.json()) // Parse response as JSON
-        //     .then(data => {
-        //         // Close loading Swal
-        //         Swal.close();
         
-        //         // Handle response using SweetAlert2
-        //         // Swal.fire({
-        //         //     icon: 'success',
-        //         //     title: 'Optimal Path',
-        //         //     text: data.optimalPath
-        //         // });
-        //         Swal.fire({
-        //             icon: 'success',
-        //             title: 'Optimal path result',
-        //             html: '<p>' + data['optimalPath'] + '</p>' +
-        //                 '<p>Total Weight: ' + data['totalWeight'] + '</p>'
-        //         });
-        //         console.log(data['locations']);
-        //     })
-        //     .catch(error => {
-        //         // Close loading Swal
-        //         Swal.close();
-
-        //         // Handle error using SweetAlert2
-        //         Swal.fire({
-        //             icon: 'error',
-        //             title: 'Error',
-        //             text: 'Error:'+ error.message
-        //             // text: 'An error has occured, please try again later' 
-        //         });
-        //         console.error('Error:', error.message);  // Extract error message from error object
-        //     });
-        // }
         function sendToBackend(locations, optimize) {
             var data = {
                 locations: locations,
