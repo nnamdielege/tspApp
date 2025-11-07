@@ -216,18 +216,6 @@ class ShortestPathController extends Controller
         return $responseData;
     }
 
-    // private function formatTourWithNames(array $tour, array $pointNames): string
-    // {
-    //     // Map tour indices to point names
-    //     $namedTour = array_map(function ($index) use ($pointNames) {
-    //         return $pointNames[$index];
-    //     }, $tour);
-
-    //     // Format the tour for output
-    //     $formattedTour = implode(" ➔ ", $namedTour);
-
-    //     return $formattedTour;
-    // }
     private function formatTourWithNames(array $tour, array $pointNames): string
     {
         // Initialize an empty string to store formatted tour
