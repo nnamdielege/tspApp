@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\DriverChecklist;
 use App\Models\OdometerReading;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class DriverLogbookController extends Controller
 {
@@ -42,7 +43,7 @@ class DriverLogbookController extends Controller
                 'success' => true,
                 'message' => 'Checklist saved successfully'
             ], 201);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             Log::error('Validation Error:', $e->errors());
             return response()->json([
                 'success' => false,
