@@ -37,6 +37,7 @@ class OptimalPathController extends Controller
 
             $route = OptimalPath::create([
                 'user_id' => auth()->id(),
+                'employee_id' => auth()->id(),
                 'optimal_path' => $validated['optimalPath'],
                 'total_weight' => $validated['totalWeight'],
                 'optimize_type' => $validated['optimize'],
