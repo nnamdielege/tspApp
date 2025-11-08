@@ -47,6 +47,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/driver-reminders/pending', [DriverReminderController::class, 'getPendingReminders'])->name('getPendingReminders');
     Route::get('/driver-reminders/statistics', [DriverReminderController::class, 'getStatistics'])->name('getReminderStatistics');
     Route::post('/driver-reminders/{id}/complete', [DriverReminderController::class, 'markAsCompleted'])->name('completeReminder');
+    Route::post('/driver-reminders/end-of-day/complete', [DriverReminderController::class, 'markEndOfDayComplete'])->name('completeEndOfDay');
 });
 
 Route::middleware('auth')->group(function () {

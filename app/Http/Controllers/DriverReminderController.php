@@ -97,6 +97,51 @@ class DriverReminderController extends Controller
         }
     }
 
+    public function markEndOfDayComplete(Request $request)
+    {
+        try {
+            $userId = auth()->id();
+            $today = now()->toDateString();
+
+            // Mark end of day reminder as completed
+            $reminder = DriverReminder::where('user_id', $userId)
+                ->where('reminder_date', $today)
+                ->where('reminder_type', 'end_of_day')
+                ->firstOrFail();
+
+            $reminder->markAsCompleted();
+
+            // Create tomorrow's reminders if they don't exist
+            $tomorrow = now()->addDay()->toDateString();
+
+            $startReminderExists = DriverReminder::where('user_id', $userId)
+                ->where('reminder_date', $tomorrow)
+                ->where('reminder_type', 'start_of_day')
+                ->exists();
+
+            if (!$startReminderExists) {
+                DriverReminder::create([
+                    'user_id' => $userId,
+                    'reminder_type' => 'start_of_day',
+                    'reminder_date' => $tomorrow,
+                    'is_completed' => false,
+                    'notes' => 'Complete your daily vehicle checklist',
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'End of day reminder completed. See you tomorrow!'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Mark End of Day Error:', ['message' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to complete end of day reminder'
+            ], 500);
+        }
+    }
+
     /**
      * Get reminder statistics
      */

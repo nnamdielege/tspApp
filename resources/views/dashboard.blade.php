@@ -138,19 +138,90 @@
         </div>
     </div>
 
+    <!-- End of Day Reminder Modal -->
+    <div id="endOfDayReminderModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full animate-bounce">
+            <div class="bg-gradient-to-r from-orange-500 to-red-500 p-6 text-white rounded-t-lg">
+                <h3 class="text-2xl font-bold flex items-center gap-2">
+                    🌙 End of Day Reminder
+                </h3>
+                <p class="text-sm mt-2 opacity-90">Don't forget to complete your end-of-day tasks</p>
+            </div>
+
+            <div class="p-6">
+                <div class="mb-6 space-y-4">
+                    <!-- Task 1: Odometer Reading -->
+                    <div class="flex items-start gap-3 p-4 bg-blue-50 dark:bg-blue-900 rounded-lg">
+                        <div class="text-2xl mt-1">📍</div>
+                        <div>
+                            <p class="font-semibold text-gray-800 dark:text-gray-100">Log Odometer Reading</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Record your final odometer reading for the day</p>
+                        </div>
+                    </div>
+
+                    <!-- Task 2: Vehicle Checklist -->
+                    <div class="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-900 rounded-lg">
+                        <div class="text-2xl mt-1">✓</div>
+                        <div>
+                            <p class="font-semibold text-gray-800 dark:text-gray-100">Vehicle End-of-Day Checklist</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Check vehicle condition and report any issues</p>
+                        </div>
+                    </div>
+
+                    <!-- Task 3: Summary -->
+                    <div class="flex items-start gap-3 p-4 bg-purple-50 dark:bg-purple-900 rounded-lg">
+                        <div class="text-2xl mt-1">📊</div>
+                        <div>
+                            <p class="font-semibold text-gray-800 dark:text-gray-100">Daily Summary</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Add any notes or issues from today's trips</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <button onclick="snoozeReminder()" class="flex-1 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition font-semibold">
+                        Snooze
+                    </button>
+                    <button onclick="completeEndOfDay()" class="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-4 py-2 rounded-lg transition font-semibold">
+                        Start
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- End of Day Notification Toast -->
+    <div id="endOfDayToast" class="fixed bottom-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 max-w-sm hidden z-40 border-l-4 border-orange-500">
+        <div class="flex items-center gap-3">
+            <div class="text-3xl">🌙</div>
+            <div>
+                <p class="font-bold text-gray-800 dark:text-gray-100">Time to wrap up!</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Complete your end-of-day checklist</p>
+            </div>
+            <button onclick="closeToast()" class="ml-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-xl">×</button>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         let currentRouteId = null;
+        let snoozeTimeout = null;
+        const END_OF_DAY_HOUR = 17; // 5 PM
+        const SNOOZE_MINUTES = 15;
 
-        // Load routes on page load
+        // Load routes and reminders on page load
         document.addEventListener('DOMContentLoaded', function() {
             loadRoutes();
             loadTodayReminders();
             loadStatistics();
+            checkEndOfDayReminder();
 
             // Refresh reminders every 5 minutes
             setInterval(loadTodayReminders, 300000);
             setInterval(loadStatistics, 300000);
+            
+            // Check for end of day reminder every minute
+            setInterval(checkEndOfDayReminder, 60000);
         });
 
         function loadRoutes() {
@@ -397,6 +468,133 @@
                 }
             });
         }
+
+        // END OF DAY REMINDER FUNCTIONS
+        function checkEndOfDayReminder() {
+            const now = new Date();
+            const currentHour = now.getHours();
+
+            // Show reminder at configured hour (5 PM = 17:00)
+            if (currentHour === END_OF_DAY_HOUR) {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                fetch('{{ route("getTodayReminders") }}', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                })
+                .then(response => response.json())
+                .then(reminders => {
+                    const endOfDayReminder = reminders.find(r => r.type === 'end_of_day');
+                    
+                    if (endOfDayReminder && !endOfDayReminder.is_completed) {
+                        showEndOfDayReminder();
+                    }
+                })
+                .catch(error => console.error('Error checking reminder:', error));
+            }
+        }
+
+        function showEndOfDayReminder() {
+            // Show modal
+            const modal = document.getElementById('endOfDayReminderModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            // Show toast notification
+            const toast = document.getElementById('endOfDayToast');
+            toast.classList.remove('hidden');
+
+            // Play notification sound
+            playNotificationSound();
+
+            // Request browser notification permission
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('End of Day Reminder', {
+                    body: 'Time to complete your end-of-day checklist!',
+                    icon: '🌙',
+                    tag: 'end-of-day-reminder',
+                    requireInteraction: true
+                });
+            }
+
+            // Auto-close toast after 10 seconds
+            setTimeout(() => {
+                closeToast();
+            }, 10000);
+        }
+
+        function snoozeReminder() {
+            const modal = document.getElementById('endOfDayReminderModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+            Swal.fire({
+                icon: 'info',
+                title: 'Reminder Snoozed',
+                text: 'We\'ll remind you again in ' + SNOOZE_MINUTES + ' minutes',
+                confirmButtonColor: '#667eea'
+            });
+
+            clearTimeout(snoozeTimeout);
+            snoozeTimeout = setTimeout(() => {
+                showEndOfDayReminder();
+            }, SNOOZE_MINUTES * 60 * 1000);
+        }
+
+        function completeEndOfDay() {
+            const modal = document.getElementById('endOfDayReminderModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+            Swal.fire({
+                title: 'End of Day Tasks',
+                html: '<p class="mb-4 font-semibold">What would you like to do?</p>',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Go to Logbook',
+                confirmButtonColor: '#667eea',
+                cancelButtonText: 'I\'ll do it later'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '{{ route("driver-logbook") }}';
+                }
+            });
+        }
+
+        function closeToast() {
+            const toast = document.getElementById('endOfDayToast');
+            toast.classList.add('hidden');
+        }
+
+        function playNotificationSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            } catch (e) {
+                console.log('Audio notification not supported');
+            }
+        }
+
+        // Request notification permission on load
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
     </script>
 
     <style>
@@ -411,6 +609,20 @@
             animation: spin 1s linear infinite;
         }
 
+        /* Bounce animation for modal */
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .animate-bounce {
+            animation: bounce 1s infinite;
+        }
+
         /* Table Responsive */
         @media (max-width: 768px) {
             table {
@@ -419,6 +631,10 @@
 
             th, td {
                 padding: 0.75rem 0.5rem !important;
+            }
+
+            #remindersStats {
+                grid-template-columns: repeat(2, 1fr) !important;
             }
         }
     </style>
