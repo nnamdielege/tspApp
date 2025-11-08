@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -42,4 +43,49 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function suspendedByAdmin()
+    {
+        return $this->belongsTo(User::class, 'suspended_by');
+    }
+
+    public function suspendedEmployees()
+    {
+        return $this->hasMany(User::class, 'suspended_by');
+    }
+
+    public function suspend($reason = null)
+    {
+        $this->update([
+            'is_suspended' => true,
+            'suspended_at' => now(),
+            'suspended_by' => auth()->id(),
+            'suspension_reason' => $reason,
+        ]);
+    }
+
+    public function unsuspend()
+    {
+        $this->update([
+            'is_suspended' => false,
+            'unsuspended_at' => now(),
+        ]);
+    }
+
+    public function isSuspended()
+    {
+        return $this->is_suspended === true;
+    }
+
+    public function settings()
+    {
+        return $this->hasOne(UserSetting::class);
+    }
+
+    public function getOrCreateSettings()
+    {
+        return $this->settings()->firstOrCreate([
+            'user_id' => $this->id,
+        ]);
+    }
 }

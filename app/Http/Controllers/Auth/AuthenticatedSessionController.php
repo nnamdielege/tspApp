@@ -27,6 +27,21 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
+        // Check if user is suspended
+        $user = Auth::user();
+        if ($user && $user->is_suspended) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')->with(
+                'error',
+                'Your account has been suspended. ' .
+                    'Reason: ' . ($user->suspension_reason ?? 'No reason provided') . '. ' .
+                    'Please contact your administrator for more information.'
+            );
+        }
+
         $request->session()->regenerate();
 
         return redirect()->intended(RouteServiceProvider::HOME);

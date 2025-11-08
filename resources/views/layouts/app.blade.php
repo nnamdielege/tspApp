@@ -78,6 +78,12 @@
                         </a>
                         <!-- Desktop Menu -->
                         <div class="desktop-menu ml-10 flex space-x-4">
+                            @if(auth()->user()->role === 'admin')
+                                <a href="{{ route('admin.dashboard') }}"
+                                class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white">
+                                    👨‍💼 Admin Dashboard
+                                </a>
+                            @endif
                             <a href="{{ route('dashboard') }}"
                                class="px-3 py-2 rounded-md text-sm font-medium text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white">
                                 Dashboard
@@ -102,7 +108,7 @@
                             </button>
                             <!-- Dropdown Menu -->
                             <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-lg shadow-lg z-50">
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-t-lg">
+                                <a href="{{ route('settings.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-t-lg">
                                     User Settings
                                 </a>
                                 <form method="POST" action="{{ route('logout') }}" class="block">
