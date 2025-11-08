@@ -107,7 +107,7 @@ class DriverLogbookController extends Controller
                 'success' => true,
                 'message' => 'Odometer reading saved successfully'
             ], 201);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             Log::error('Validation Error:', $e->errors());
             return response()->json([
                 'success' => false,
