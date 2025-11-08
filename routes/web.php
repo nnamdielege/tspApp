@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ShortestPathController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,22 +18,31 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+// 
 
-// Route::get('/searchPath', function () {
-//     return view('searchPath');
-// });
+// Route::get('/', [AddressController::class, 'index']);
 
-// Route::get('/searchPath', function () {
-//     return view('app');
-// })->name('application');
+// Route::get('/tsp', [AddressController::class, 'tspVue']);
 
-Route::post('/deriveTSP', [ShortestPathController::class, 'deriveTSP'])->name('deriveTSP');
 
-// Route::get('address', [AddressController::class, 'index']);
+Route::get('/', function () {
+    return view('welcome');
+});
 
-Route::get('/', [AddressController::class, 'index']);
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/tsp', [AddressController::class, 'tspVue']);
+Route::get('/optimal-path', function () {
+    return view('optimal-path');
+})->middleware(['auth', 'verified'])->name('optimal-path');
+
+Route::post('/deriveTSP', [ShortestPathController::class, 'deriveTSP'])->middleware(['auth', 'verified'])->name('deriveTSP');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__ . '/auth.php';
