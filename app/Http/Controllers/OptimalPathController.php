@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\RouteOptimized;
 use App\Models\OptimalPath;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class OptimalPathController extends Controller
 {
@@ -43,12 +45,15 @@ class OptimalPathController extends Controller
 
             Log::info('Route created:', $route->toArray());
 
+            // Fire event to create odometer reminders
+            RouteOptimized::dispatch($route);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Route saved successfully',
                 'route' => $route
             ], 201);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             Log::error('Validation Error:', $e->errors());
             return response()->json([
                 'success' => false,

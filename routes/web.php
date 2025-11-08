@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DriverLogbookController;
+use App\Http\Controllers\DriverReminderController;
 use App\Http\Controllers\OptimalPathController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ShortestPathController;
@@ -40,6 +41,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/save-odometer-reading', [DriverLogbookController::class, 'saveOdometer'])->name('saveOdometerReading');
     Route::get('/driver-logs', [DriverLogbookController::class, 'getLogs'])->name('getDriverLogs');
     Route::delete('/driver-log/{id}', [DriverLogbookController::class, 'deleteLog'])->name('deleteDriverLog');
+
+    // Driver Reminders Routes
+    Route::get('/driver-reminders/today', [DriverReminderController::class, 'getTodayReminders'])->name('getTodayReminders');
+    Route::get('/driver-reminders/pending', [DriverReminderController::class, 'getPendingReminders'])->name('getPendingReminders');
+    Route::get('/driver-reminders/statistics', [DriverReminderController::class, 'getStatistics'])->name('getReminderStatistics');
+    Route::post('/driver-reminders/{id}/complete', [DriverReminderController::class, 'markAsCompleted'])->name('completeReminder');
 });
 
 Route::middleware('auth')->group(function () {

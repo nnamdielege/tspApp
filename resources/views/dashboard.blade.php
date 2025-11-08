@@ -67,6 +67,39 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Reminders Widget -->
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-6" id="remindersWidget">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    <h3 class="text-xl font-bold mb-4">📋 Today's Reminders</h3>
+                    
+                    <div id="remindersContainer">
+                        <div class="flex justify-center items-center py-8">
+                            <div class="animate-spin h-5 w-5 text-gray-400"></div>
+                        </div>
+                    </div>
+
+                    <!-- Statistics -->
+                    <div class="mt-6 grid grid-cols-4 gap-4" id="remindersStats">
+                        <div class="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="totalToday">0</div>
+                            <div class="text-sm text-blue-600 dark:text-blue-400">Total Today</div>
+                        </div>
+                        <div class="bg-green-50 dark:bg-green-900 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-green-600 dark:text-green-400" id="completedToday">0</div>
+                            <div class="text-sm text-green-600 dark:text-green-400">Completed</div>
+                        </div>
+                        <div class="bg-yellow-50 dark:bg-yellow-900 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-yellow-600 dark:text-yellow-400" id="pendingToday">0</div>
+                            <div class="text-sm text-yellow-600 dark:text-yellow-400">Pending</div>
+                        </div>
+                        <div class="bg-red-50 dark:bg-red-900 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-red-600 dark:text-red-400" id="overdue">0</div>
+                            <div class="text-sm text-red-600 dark:text-red-400">Overdue</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -112,6 +145,12 @@
         // Load routes on page load
         document.addEventListener('DOMContentLoaded', function() {
             loadRoutes();
+            loadTodayReminders();
+            loadStatistics();
+
+            // Refresh reminders every 5 minutes
+            setInterval(loadTodayReminders, 300000);
+            setInterval(loadStatistics, 300000);
         });
 
         function loadRoutes() {
@@ -264,6 +303,100 @@
                 closeViewModal();
             }
         });
+
+        function loadTodayReminders() {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            fetch('{{ route("getTodayReminders") }}', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(reminders => {
+                renderReminders(reminders);
+            })
+            .catch(error => console.error('Error loading reminders:', error));
+        }
+
+        function renderReminders(reminders) {
+            const container = document.getElementById('remindersContainer');
+            
+            if (reminders.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center">No reminders for today</p>';
+                return;
+            }
+
+            container.innerHTML = reminders.map(reminder => `
+                <div class="flex items-center justify-between p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg mb-3 ${reminder.is_completed ? 'bg-green-50 dark:bg-green-900' : 'bg-blue-50 dark:bg-blue-900'}">
+                    <div class="flex items-center gap-4">
+                        <span class="text-2xl">${reminder.icon}</span>
+                        <div>
+                            <p class="font-semibold text-gray-800 dark:text-gray-100">${reminder.type_label}</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">${reminder.notes}</p>
+                        </div>
+                    </div>
+                    <div>
+                        ${reminder.is_completed ? 
+                            `<span class="text-green-600 dark:text-green-400 font-semibold">✓ Completed</span>` :
+                            `<button onclick="completeReminder(${reminder.id})" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition">
+                                Mark Complete
+                            </button>`
+                        }
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadStatistics() {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            fetch('{{ route("getReminderStatistics") }}', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(stats => {
+                document.getElementById('totalToday').textContent = stats.total_today;
+                document.getElementById('completedToday').textContent = stats.completed_today;
+                document.getElementById('pendingToday').textContent = stats.pending_today;
+                document.getElementById('overdue').textContent = stats.pending_overdue;
+            })
+            .catch(error => console.error('Error loading statistics:', error));
+        }
+
+        function completeReminder(reminderId) {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            Swal.fire({
+                title: 'Mark as Completed?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Complete'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`{{ route('completeReminder', ':id') }}`.replace(':id', reminderId), {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('Done!', 'Reminder marked as completed', 'success');
+                            loadTodayReminders();
+                            loadStatistics();
+                        }
+                    });
+                }
+            });
+        }
     </script>
 
     <style>
