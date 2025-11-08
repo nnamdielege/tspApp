@@ -241,9 +241,8 @@
     <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.api_key') }}&libraries=places"></script>
     <!-- SweetAlert2 Script -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        google.maps.event.addDomListener(window, 'load', initialize);
 
+    <script>
         function initialize() {
             const pathsInput = document.getElementById('paths');
             const locationContainer = document.getElementById('locationInputsContainer');
@@ -260,7 +259,7 @@
                     for (let i = 1; i <= numOfPaths; i++) {
                         const wrapper = document.createElement('div');
                         wrapper.className = 'location-input-wrapper';
-                        wrapper.style.animationDelay = `${i * 50}ms`;
+                        wrapper.style.animationDelay = (i * 50) + 'ms';
 
                         const inputGroup = document.createElement('div');
                         inputGroup.className = 'input-group';
@@ -273,7 +272,7 @@
                         input.id = 'input' + i;
                         input.className = 'form-control location-input';
                         input.type = 'text';
-                        input.placeholder = `Location ${i}`;
+                        input.placeholder = 'Location ' + i;
                         input.required = true;
 
                         inputGroup.appendChild(badge);
@@ -281,7 +280,6 @@
                         wrapper.appendChild(inputGroup);
                         locationContainer.appendChild(wrapper);
 
-                        // Initialize Google Places Autocomplete
                         if (typeof google !== 'undefined') {
                             const autocomplete = new google.maps.places.Autocomplete(input);
                             autocomplete.addListener('place_changed', function() {
@@ -309,7 +307,7 @@
                         Swal.fire({
                             icon: 'warning',
                             title: 'Incomplete Form',
-                            text: `Please enter a location for stop ${i}`
+                            text: 'Please enter a location for stop ' + i
                         });
                         return;
                     }
@@ -346,18 +344,15 @@
                 Swal.fire({
                     icon: 'success',
                     title: 'Route Optimized!',
-                    html: `
-                        <div style="text-align: left;">
-                            <p><strong>Optimal Path:</strong></p>
-                            <p style="background: #f3f4f6; padding: 1rem; border-radius: 0.375rem; margin: 0.625rem 0; color: #1f2937;">
-                                ${data['optimalPath']}
-                            </p>
-                            <p><strong>Total ${data['optimize'] === 'duration' ? 'Duration' : 'Distance'}:</strong> 
-                               <span style="color: #667eea; font-weight: bold; font-size: 1rem;">${data['totalWeight']}</span>
-                            </p>
-                        </div>
-                    `,
-                    confirmButtonColor: '#667eea'
+                    html: '<div style="text-align: left;"><p><strong>Optimal Path:</strong></p><p style="background: #f3f4f6; padding: 1rem; border-radius: 0.375rem; margin: 0.625rem 0; color: #1f2937;">' + data.optimalPath + '</p><p><strong>Total ' + (data.optimize === 'duration' ? 'Duration' : 'Distance') + ':</strong> <span style="color: #667eea; font-weight: bold; font-size: 1rem;">' + data.totalWeight + '</span></p></div>',
+                    confirmButtonColor: '#667eea',
+                    confirmButtonText: 'Save Route',
+                    showCancelButton: true,
+                    cancelButtonText: 'Close'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        saveRouteToDatabase(data, optimize);
+                    }
                 });
             })
             .catch(error => {
@@ -370,5 +365,68 @@
                 console.error(error);
             });
         }
+
+        function saveRouteToDatabase(routeData, optimizeType) {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            Swal.fire({
+                title: 'Saving Route...',
+                html: 'Please wait while we save your optimized route.',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            const numOfPaths = parseInt(document.getElementById('paths').value);
+            const locations = [];
+            for (let i = 1; i <= numOfPaths; i++) {
+                locations.push(document.getElementById('input' + i).value);
+            }
+
+            const saveData = {
+                optimalPath: routeData.optimalPath,
+                totalWeight: routeData.totalWeight,
+                optimize: optimizeType,
+                locations: locations
+            };
+
+            console.log('Saving data:', saveData);
+
+            fetch("{{ route('saveRoute') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify(saveData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                Swal.close();
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Route Saved!',
+                        text: 'Your optimized route has been saved successfully.',
+                        confirmButtonColor: '#667eea'
+                    });
+                    document.getElementById('pathForm').reset();
+                    document.getElementById('locationInputsContainer').innerHTML = '<label class="form-label" style="margin-bottom: 0.9375rem;">📍 Your Locations</label>';
+                    document.getElementById('locationInputsContainer').classList.remove('active');
+                } else {
+                    throw new Error(data.message || 'Failed to save route');
+                }
+            })
+            .catch(error => {
+                Swal.close();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Save Failed',
+                    text: 'An error occurred while saving the route: ' + error.message
+                });
+                console.error(error);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initialize);
     </script>
 </x-app-layout>
