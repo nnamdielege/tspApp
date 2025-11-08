@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Driver Logbook') }}
+            Driver Logbook
         </h2>
     </x-slot>
 
@@ -9,13 +9,13 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Tabs Navigation -->
             <div class="mb-6 flex gap-4 flex-wrap">
-                <button onclick="showTab('daily-checklist')" class="tab-btn active px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg transition">
+                <button id="tab-daily-checklist" class="tab-btn active px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg transition">
                     Daily Checklist
                 </button>
-                <button onclick="showTab('odometer-log')" class="tab-btn px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition">
+                <button id="tab-odometer-log" class="tab-btn px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition">
                     Odometer Log
                 </button>
-                <button onclick="showTab('logs-history')" class="tab-btn px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition">
+                <button id="tab-logs-history" class="tab-btn px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition">
                     History
                 </button>
             </div>
@@ -144,7 +144,7 @@
                                 <input type="text" name="purpose" class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-gray-100 focus:border-purple-500 focus:outline-none" placeholder="e.g., Client Visit, Service Center">
                             </div>
 
-                            <!-- Fuel Used (Maintenance Only) -->
+                            <!-- Maintenance Cost -->
                             <div class="mb-6">
                                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Maintenance Cost (Optional)</label>
                                 <input type="number" name="maintenance_cost" class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-gray-100 focus:border-purple-500 focus:outline-none" placeholder="Enter cost if applicable" step="0.01">
@@ -172,9 +172,9 @@
                         <h3 class="text-2xl font-bold mb-6">Logs History</h3>
                         
                         <div class="mb-6 flex gap-2 flex-wrap">
-                            <button onclick="filterLogs('all')" class="filter-btn active px-4 py-2 bg-purple-500 text-white rounded-lg transition">All</button>
-                            <button onclick="filterLogs('checklist')" class="filter-btn px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition">Checklists</button>
-                            <button onclick="filterLogs('odometer')" class="filter-btn px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition">Odometer</button>
+                            <button id="filter-all" class="filter-btn active px-4 py-2 bg-purple-500 text-white rounded-lg transition">All</button>
+                            <button id="filter-checklist" class="filter-btn px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition">Checklists</button>
+                            <button id="filter-odometer" class="filter-btn px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition">Odometer</button>
                         </div>
 
                         <!-- Logs Table -->
@@ -211,28 +211,66 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        const AppConfig = {
+            saveChecklistUrl: '{{ route("saveDriverChecklist") }}',
+            saveOdometerUrl: '{{ route("saveOdometerReading") }}',
+            getLogsUrl: '{{ route("getDriverLogs") }}',
+            deleteLogUrl: '{{ route("deleteDriverLog", ":id") }}'
+        };
+
         let currentFilter = 'all';
 
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+        });
+
+        function initializeEventListeners() {
+            document.getElementById('tab-daily-checklist').addEventListener('click', () => showTab('daily-checklist'));
+            document.getElementById('tab-odometer-log').addEventListener('click', () => showTab('odometer-log'));
+            document.getElementById('tab-logs-history').addEventListener('click', () => showTab('logs-history'));
+
+            document.getElementById('filter-all').addEventListener('click', () => filterLogs('all'));
+            document.getElementById('filter-checklist').addEventListener('click', () => filterLogs('checklist'));
+            document.getElementById('filter-odometer').addEventListener('click', () => filterLogs('odometer'));
+
+            document.getElementById('checklistForm').addEventListener('submit', handleChecklistSubmit);
+            document.getElementById('odometerForm').addEventListener('submit', handleOdometerSubmit);
+
+            const dateInput = document.querySelector('input[name="date"]');
+            if (dateInput) {
+                dateInput.valueAsDate = new Date();
+            }
+        }
+
         function showTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.add('hidden');
-            });
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
             document.getElementById(tabName).classList.remove('hidden');
 
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('bg-gradient-to-r', 'from-purple-500', 'to-pink-500', 'text-white');
                 btn.classList.add('bg-gray-300', 'dark:bg-gray-600', 'text-gray-800', 'dark:text-gray-100');
             });
-            event.target.classList.remove('bg-gray-300', 'dark:bg-gray-600', 'text-gray-800', 'dark:text-gray-100');
-            event.target.classList.add('bg-gradient-to-r', 'from-purple-500', 'to-pink-500', 'text-white');
 
-            if (tabName === 'logs-history') {
-                loadLogs();
-            }
+            const activeBtn = document.getElementById('tab-' + tabName);
+            activeBtn.classList.remove('bg-gray-300', 'dark:bg-gray-600', 'text-gray-800', 'dark:text-gray-100');
+            activeBtn.classList.add('bg-gradient-to-r', 'from-purple-500', 'to-pink-500', 'text-white');
+
+            if (tabName === 'logs-history') loadLogs();
         }
 
-        // Daily Checklist Form
-        document.getElementById('checklistForm').addEventListener('submit', function(e) {
+        function filterLogs(type) {
+            currentFilter = type;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-purple-500', 'text-white');
+                btn.classList.add('bg-gray-300', 'dark:bg-gray-600', 'text-gray-800', 'dark:text-gray-100');
+            });
+
+            document.getElementById('filter-' + type).classList.remove('bg-gray-300', 'dark:bg-gray-600', 'text-gray-800', 'dark:text-gray-100');
+            document.getElementById('filter-' + type).classList.add('bg-purple-500', 'text-white');
+            loadLogs();
+        }
+
+        function handleChecklistSubmit(e) {
             e.preventDefault();
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const checklistItems = Array.from(document.querySelectorAll('input[name="checklist"]:checked')).map(el => el.value);
@@ -250,7 +288,7 @@
                 didOpen: () => Swal.showLoading()
             });
 
-            fetch('{{ route("saveDriverChecklist") }}', {
+            fetch(AppConfig.saveChecklistUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -261,25 +299,16 @@
             .then(response => response.json())
             .then(data => {
                 Swal.close();
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Checklist Saved!',
-                    text: 'Your daily checklist has been recorded.'
-                });
+                Swal.fire('Success!', 'Your daily checklist has been recorded.', 'success');
                 document.getElementById('checklistForm').reset();
             })
             .catch(error => {
                 Swal.close();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Failed to save checklist: ' + error.message
-                });
+                Swal.fire('Error', 'Failed to save checklist: ' + error.message, 'error');
             });
-        });
+        }
 
-        // Odometer Form
-        document.getElementById('odometerForm').addEventListener('submit', function(e) {
+        function handleOdometerSubmit(e) {
             e.preventDefault();
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
@@ -299,7 +328,7 @@
                 didOpen: () => Swal.showLoading()
             });
 
-            fetch('{{ route("saveOdometerReading") }}', {
+            fetch(AppConfig.saveOdometerUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -310,28 +339,20 @@
             .then(response => response.json())
             .then(data => {
                 Swal.close();
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Odometer Reading Saved!',
-                    text: 'Your odometer reading has been recorded.'
-                });
+                Swal.fire('Success!', 'Your odometer reading has been recorded.', 'success');
                 document.getElementById('odometerForm').reset();
                 document.querySelector('input[name="date"]').valueAsDate = new Date();
             })
             .catch(error => {
                 Swal.close();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Failed to save odometer reading: ' + error.message
-                });
+                Swal.fire('Error', 'Failed to save odometer reading: ' + error.message, 'error');
             });
-        });
+        }
 
         function loadLogs() {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-            fetch('{{ route("getDriverLogs") }}', {
+            fetch(AppConfig.getLogsUrl, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -339,12 +360,8 @@
                 }
             })
             .then(response => response.json())
-            .then(logs => {
-                renderLogs(logs);
-            })
-            .catch(error => {
-                console.error('Error loading logs:', error);
-            });
+            .then(logs => renderLogs(logs))
+            .catch(error => console.error('Error loading logs:', error));
         }
 
         function renderLogs(logs) {
@@ -356,24 +373,20 @@
             }
 
             tableBody.innerHTML = logs.map(log => `
-                <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700" data-log-id="${log.id}">
                     <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">${new Date(log.created_at).toLocaleDateString()}</td>
                     <td class="px-6 py-4 text-sm"><span class="px-3 py-1 rounded-full text-xs font-semibold ${log.type === 'checklist' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'}">${log.type === 'checklist' ? '✓ Checklist' : '🛣️ Odometer'}</span></td>
                     <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">${log.details}</td>
-                    <td class="px-6 py-4 text-center"><button onclick="deleteLog(${log.id})" class="text-red-600 hover:text-red-800 dark:text-red-400 text-sm font-semibold">Delete</button></td>
+                    <td class="px-6 py-4 text-center"><button type="button" class="delete-log-btn text-red-600 hover:text-red-800 dark:text-red-400 text-sm font-semibold">Delete</button></td>
                 </tr>
             `).join('');
-        }
 
-        function filterLogs(type) {
-            currentFilter = type;
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('bg-purple-500', 'text-white');
-                btn.classList.add('bg-gray-300', 'dark:bg-gray-600', 'text-gray-800', 'dark:text-gray-100');
+            document.querySelectorAll('.delete-log-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const logId = this.closest('tr').dataset.logId;
+                    deleteLog(logId);
+                });
             });
-            event.target.classList.remove('bg-gray-300', 'dark:bg-gray-600', 'text-gray-800', 'dark:text-gray-100');
-            event.target.classList.add('bg-purple-500', 'text-white');
-            loadLogs();
         }
 
         function deleteLog(logId) {
@@ -388,22 +401,25 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                    fetch('{{ route("deleteDriverLog", ":id") }}'.replace(':id', logId), {
+                    const deleteUrl = AppConfig.deleteLogUrl.replace(':id', logId);
+                    
+                    fetch(deleteUrl, {
                         method: 'DELETE',
                         headers: {
-                            'X-CSRF-TOKEN': csrfToken
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Content-Type': 'application/json'
                         }
                     })
                     .then(response => response.json())
                     .then(data => {
                         Swal.fire('Deleted!', 'Log deleted successfully.', 'success');
                         loadLogs();
+                    })
+                    .catch(error => {
+                        Swal.fire('Error!', 'Failed to delete log: ' + error.message, 'error');
                     });
                 }
             });
         }
-
-        // Set today's date as default
-        document.querySelector('input[name="date"]').valueAsDate = new Date();
     </script>
 </x-app-layout>
