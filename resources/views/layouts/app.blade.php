@@ -142,7 +142,10 @@
                     <a href="{{ route('optimal-path') }}" class="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white">
                         Locate Optimal Path
                     </a>
-                    <a href="#" class="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white">
+                    <a href="{{ route('driver-logbook') }}" class="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white">
+                        Driver Logbook
+                    </a>
+                    <a href="{{ route('settings.index') }}" class="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white">
                         User Settings
                     </a>
                     <form method="POST" action="{{ route('logout') }}" class="block">
