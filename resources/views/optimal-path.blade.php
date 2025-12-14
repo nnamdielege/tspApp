@@ -17,8 +17,8 @@
                             <!-- Number of Stops -->
                             <div class="form-group">
                                 <label class="form-label">Number of Stops</label>
-                                <input id="paths" class="form-control" type="number" min="3" max="20" 
-                                       placeholder="Enter number (3-20)" required>
+                                <input id="paths" class="form-control" type="number" min="3" max="30" 
+                                       placeholder="Enter number (3-30)" required>
                                 <div class="info-badge">Minimum 3 stops required</div>
                             </div>
 
@@ -253,7 +253,7 @@
                 
                 locationContainer.innerHTML = '<label class="form-label" style="margin-bottom: 0.9375rem;">📍 Your Locations</label>';
 
-                if (numOfPaths >= 3 && numOfPaths <= 20) {
+                if (numOfPaths >= 3 && numOfPaths <= 30) {
                     locationContainer.classList.add('active');
 
                     for (let i = 1; i <= numOfPaths; i++) {
@@ -287,8 +287,8 @@
                             });
                         }
                     }
-                } else if (numOfPaths > 20) {
-                    pathsInput.value = 20;
+                } else if (numOfPaths > 30) {
+                    pathsInput.value = 30;
                     pathsInput.dispatchEvent(new Event('input'));
                 } else {
                     locationContainer.classList.remove('active');
