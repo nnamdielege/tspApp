@@ -50,7 +50,7 @@
                 </div>
 
                 <div class="lg:col-span-3">
-                    <div id="map" class="w-full h-[75vh] rounded-lg shadow"></div>
+                    <div id="map" class="w-full rounded-lg shadow" style="height: 75vh; min-height: 500px; width: 100%;"></div>
                 </div>
             </div>
         </div>
