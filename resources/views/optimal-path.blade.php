@@ -382,11 +382,22 @@
                 locations.push(document.getElementById('input' + i).value);
             }
 
+            if (!routeData.orderedStops || !Array.isArray(routeData.orderedStops) || routeData.orderedStops.length === 0) {
+                Swal.close();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Map data missing',
+                    text: 'The route was calculated, but no map coordinates were returned.'
+                });
+                return;
+            }
+
             const saveData = {
                 optimalPath: routeData.optimalPath,
                 totalWeight: routeData.totalWeight,
                 optimize: optimizeType,
-                locations: locations
+                locations: locations,
+                orderedStops: routeData.orderedStops
             };
 
             console.log('Saving data:', saveData);
@@ -402,16 +413,25 @@
             .then(response => response.json())
             .then(data => {
                 Swal.close();
+
                 if (data.success) {
                     Swal.fire({
                         icon: 'success',
                         title: 'Route Saved!',
                         text: 'Your optimized route has been saved successfully.',
-                        confirmButtonColor: '#667eea'
+                        confirmButtonColor: '#667eea',
+                        confirmButtonText: 'Open Map',
+                        showCancelButton: true,
+                        cancelButtonText: 'Stay Here'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = `/routes/${data.route.id}/map`;
+                        } else {
+                            document.getElementById('pathForm').reset();
+                            document.getElementById('locationInputsContainer').innerHTML = '<label class="form-label" style="margin-bottom: 0.9375rem;">📍 Your Locations</label>';
+                            document.getElementById('locationInputsContainer').classList.remove('active');
+                        }
                     });
-                    document.getElementById('pathForm').reset();
-                    document.getElementById('locationInputsContainer').innerHTML = '<label class="form-label" style="margin-bottom: 0.9375rem;">📍 Your Locations</label>';
-                    document.getElementById('locationInputsContainer').classList.remove('active');
                 } else {
                     throw new Error(data.message || 'Failed to save route');
                 }

@@ -31,9 +31,8 @@ class OptimalPathController extends Controller
                 'totalWeight' => 'required|string',
                 'optimize' => 'required|in:duration,distance',
                 'locations' => 'required|array',
+                'orderedStops' => 'required|array',
             ]);
-
-            Log::info('Validated data:', $validated);
 
             $route = OptimalPath::create([
                 'user_id' => auth()->id(),
@@ -41,10 +40,9 @@ class OptimalPathController extends Controller
                 'optimal_path' => $validated['optimalPath'],
                 'total_weight' => $validated['totalWeight'],
                 'optimize_type' => $validated['optimize'],
-                'locations' => json_encode($validated['locations']),
+                'locations' => $validated['locations'],
+                'ordered_stops' => $validated['orderedStops'],
             ]);
-
-            Log::info('Route created:', $route->toArray());
 
             // Fire event to create odometer reminders
             RouteOptimized::dispatch($route);
@@ -73,6 +71,25 @@ class OptimalPathController extends Controller
                 'success' => false,
                 'message' => 'Failed to save route: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+
+    public function map($id)
+    {
+        try {
+            $route = OptimalPath::where('user_id', auth()->id())
+                ->findOrFail($id);
+
+            return view('routes.map', [
+                'route' => $route,
+                'orderedStops' => $route->ordered_stops ?? [],
+                'googleMapsApiKey' => config('services.google.api_key'),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Map Route Error:', ['message' => $e->getMessage()]);
+
+            return redirect()->route('dashboard')->with('error', 'Route not found.');
         }
     }
 

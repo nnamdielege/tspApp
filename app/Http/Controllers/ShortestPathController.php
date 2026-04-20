@@ -58,11 +58,15 @@ class ShortestPathController extends Controller
             // Calculate the total weight of the path
             $totalWeight = $this->calculateTotalWeight($tour, $locations, $optimize);
 
+            $orderedStops = $this->buildOrderedStops($tour, $locations);
+
             // Return the formatted tour as JSON
             return response()->json([
                 'optimalPath' => $formattedTour,
                 'totalWeight' => $totalWeight,
                 'locations' => $locations,
+                'orderedStops' => $orderedStops,
+                'optimize' => $optimize,
             ]);
         } catch (Exception $e) {
             // Log the exception for debugging
@@ -233,5 +237,64 @@ class ShortestPathController extends Controller
         }
 
         return $formattedTour;
+    }
+
+    private function geocodeAddress(string $address): ?array
+    {
+        $apiKey = config('services.google.api_key');
+
+        $cacheKey = 'geocode_' . md5($address);
+
+        if (cache()->has($cacheKey)) {
+            return cache()->get($cacheKey);
+        }
+
+        $client = new Client();
+
+        $response = $client->request('GET', 'https://maps.googleapis.com/maps/api/geocode/json', [
+            'query' => [
+                'address' => $address,
+                'key' => $apiKey,
+            ],
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        Log::info('Geocode API response:', [
+            'address' => $address,
+            'response' => $data,
+        ]);
+
+        if (
+            isset($data['results'][0]['geometry']['location']['lat']) &&
+            isset($data['results'][0]['geometry']['location']['lng'])
+        ) {
+            $result = [
+                'address' => $address,
+                'lat' => $data['results'][0]['geometry']['location']['lat'],
+                'lng' => $data['results'][0]['geometry']['location']['lng'],
+            ];
+
+            cache()->put($cacheKey, $result, now()->addMinutes(10));
+
+            return $result;
+        }
+
+        return null;
+    }
+
+    private function buildOrderedStops(array $tour, array $locations): array
+    {
+        $orderedStops = [];
+
+        foreach ($tour as $index) {
+            $geocoded = $this->geocodeAddress($locations[$index]);
+
+            if ($geocoded) {
+                $orderedStops[] = $geocoded;
+            }
+        }
+
+        return $orderedStops;
     }
 }

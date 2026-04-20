@@ -40,6 +40,7 @@ Route::middleware(['auth', 'verified', 'check.suspension'])->group(function () {
     Route::get('/user-routes', [OptimalPathController::class, 'getUserRoutes'])->name('getUserRoutes');
     Route::get('/route/{id}', [OptimalPathController::class, 'show'])->name('route.show');
     Route::delete('/route/{id}', [OptimalPathController::class, 'delete'])->name('route.delete');
+    Route::get('/routes/{id}/map', [OptimalPathController::class, 'map'])->name('route.map');
 
     // ==========================================
     // Driver Logbook Routes

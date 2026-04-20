@@ -22,8 +22,8 @@ class CreateOdometerReminders
      */
     public function handle(RouteOptimized $event): void
     {
-        // Get the number of locations in the route
-        $locationsCount = count(json_decode($event->route->locations, true));
+        // Locations is already an array because of the model cast
+        $locationsCount = count($event->route->locations ?? []);
 
         // Create an odometer reminder for each location (except the first)
         for ($i = 1; $i < $locationsCount; $i++) {

@@ -270,12 +270,15 @@
                         </span>
                     </td>
                     <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">${route.total_weight}</td>
-                    <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">${JSON.parse(route.locations).length} locations</td>
+                    <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">${(route.locations || []).length} locations</td>
                     <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">${new Date(route.created_at).toLocaleDateString()}</td>
                     <td class="px-6 py-4 text-center">
-                        <div class="flex justify-center gap-2">
+                        <div class="flex justify-center gap-3">
                             <button onclick="viewRoute(${route.id})" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-semibold">
                                 View
+                            </button>
+                            <button onclick="openRouteMap(${route.id})" class="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 text-sm font-semibold">
+                                Map
                             </button>
                             <button onclick="deleteRoute(${route.id})" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-sm font-semibold">
                                 Delete
@@ -304,7 +307,7 @@
                 document.getElementById('modalOptimizeType').textContent = route.optimize_type === 'duration' ? '⏱️ Duration' : '📍 Distance';
                 
                 const locationsList = document.getElementById('modalLocations');
-                const locations = JSON.parse(route.locations);
+                const locations = route.locations || [];
                 locationsList.innerHTML = locations.map(loc => `<li>${loc}</li>`).join('');
 
                 document.getElementById('viewRouteModal').classList.remove('hidden');
@@ -374,6 +377,10 @@
                 closeViewModal();
             }
         });
+
+        function openRouteMap(routeId) {
+            window.location.href = `{{ route('route.map', ':id') }}`.replace(':id', routeId);
+        }
 
         function loadTodayReminders() {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');

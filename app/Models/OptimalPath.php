@@ -17,6 +17,7 @@ class OptimalPath extends Model
         'optimize_type',
         'status',
         'locations',
+        'ordered_stops',
         'started_at',
         'completed_at',
         'route_notes',
@@ -24,6 +25,7 @@ class OptimalPath extends Model
 
     protected $casts = [
         'locations' => 'array',
+        'ordered_stops' => 'array',
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
     ];
