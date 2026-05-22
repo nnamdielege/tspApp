@@ -19,9 +19,7 @@ class DriverLocationController extends Controller
         ]);
 
         $location = DriverLocation::updateOrCreate(
-            [
-                'driver_id' => Auth::id()
-            ],
+            ['driver_id' => auth()->id()],
             [
                 'lat' => $validated['lat'],
                 'lng' => $validated['lng'],
@@ -31,7 +29,7 @@ class DriverLocationController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Location updated successfully',
-            'location' => $location
+            'location' => $location,
         ]);
     }
 
@@ -40,7 +38,12 @@ class DriverLocationController extends Controller
      */
     public function liveLocations()
     {
+        $latestLocationIds = DriverLocation::selectRaw('MAX(id) as id')
+            ->groupBy('driver_id')
+            ->pluck('id');
+
         return DriverLocation::with('driver')
+            ->whereIn('id', $latestLocationIds)
             ->get()
             ->map(function ($location) {
                 return [
@@ -50,6 +53,7 @@ class DriverLocationController extends Controller
                     'lng' => (float) $location->lng,
                     'updated_at' => optional($location->updated_at)->toDateTimeString(),
                 ];
-            });
+            })
+            ->values();
     }
 }

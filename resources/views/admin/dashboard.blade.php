@@ -111,8 +111,9 @@
 
     <script>
         let map;
-        let marker;
-        const driverId = 3;
+
+        // Store markers by driver_id
+        let driverMarkers = {};
 
         document.addEventListener('DOMContentLoaded', () => {
             loadStats();
@@ -120,58 +121,112 @@
         });
 
         function initMap() {
-            const defaultPos = { lat: -26.820094, lng: 153.0600699 };
+
+            const defaultPos = {
+                lat: -27.4698,
+                lng: 153.0251
+            };
 
             map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 14,
+                zoom: 9,
                 center: defaultPos,
             });
 
-            marker = new google.maps.Marker({
-                position: defaultPos,
-                map: map,
-            });
+            loadDriverLocations();
 
-            fetchLocation();
-            setInterval(fetchLocation, 10000);
+            // Refresh every 5 seconds
+            setInterval(loadDriverLocations, 5000);
         }
 
-        async function fetchLocation() {
+        async function loadDriverLocations() {
+
             try {
-                const res = await fetch(`/api/driver/${driverId}/latest-location`);
-                const data = await res.json();
 
-                if (!data) return;
+                const res = await fetch('/live-driver-locations');
 
-                const pos = {
-                    lat: parseFloat(data.lat),
-                    lng: parseFloat(data.lng),
-                };
+                const drivers = await res.json();
 
-                marker.setPosition(pos);
-                map.setCenter(pos);
+                if (!drivers || drivers.length === 0) {
+                    return;
+                }
+
+                const bounds = new google.maps.LatLngBounds();
+
+                drivers.forEach(driver => {
+
+                    const position = {
+                        lat: parseFloat(driver.lat),
+                        lng: parseFloat(driver.lng),
+                    };
+
+                    bounds.extend(position);
+
+                    // Existing marker → move it
+                    if (driverMarkers[driver.driver_id]) {
+
+                        driverMarkers[driver.driver_id].setPosition(position);
+
+                    } else {
+
+                        // Create new marker
+                        const marker = new google.maps.Marker({
+                            position: position,
+                            map: map,
+                            label: `D${driver.driver_id}`,
+                            title: driver.driver_name,
+                        });
+
+                        const infoWindow = new google.maps.InfoWindow({
+                            content: `
+                                <div style="padding:5px;">
+                                    <strong>${driver.driver_name}</strong><br>
+                                    Driver ID: ${driver.driver_id}<br>
+                                    Last Update: ${driver.updated_at}
+                                </div>
+                            `
+                        });
+
+                        marker.addListener('click', () => {
+                            infoWindow.open(map, marker);
+                        });
+
+                        driverMarkers[driver.driver_id] = marker;
+                    }
+                });
+
+                map.fitBounds(bounds);
 
                 document.getElementById('lastUpdated').textContent =
-                    "Updated: " + new Date(data.created_at).toLocaleTimeString();
+                    "Updated: " + new Date().toLocaleTimeString();
 
             } catch (e) {
-                console.error(e);
+
+                console.error('Error loading driver locations:', e);
             }
         }
 
         function loadStats() {
+
             fetch('{{ route("admin.suspension-statistics") }}')
                 .then(res => res.json())
                 .then(data => {
-                    document.getElementById('totalEmployees').textContent = data.total_employees;
-                    document.getElementById('activeEmployees').textContent = data.active_employees;
-                    document.getElementById('suspendedEmployees').textContent = data.suspended_employees;
+
+                    document.getElementById('totalEmployees').textContent =
+                        data.total_employees;
+
+                    document.getElementById('activeEmployees').textContent =
+                        data.active_employees;
+
+                    document.getElementById('suspendedEmployees').textContent =
+                        data.suspended_employees;
                 });
 
             fetch('{{ route("admin.reminder-statistics") }}')
                 .then(res => res.json())
                 .then(data => {
-                    document.getElementById('pendingReminders').textContent = data.pending_reminders;
+
+                    document.getElementById('pendingReminders').textContent =
+                        data.pending_reminders;
                 });
         }
     </script>
