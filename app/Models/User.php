@@ -88,4 +88,9 @@ class User extends Authenticatable
             'user_id' => $this->id,
         ]);
     }
+
+    public function assignedOptimalRoutes()
+    {
+        return $this->hasMany(OptimalPath::class, 'employee_id');
+    }
 }

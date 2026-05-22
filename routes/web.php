@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminEmployeeLogsController;
 use App\Http\Controllers\AdminEmployeeManagementController;
+use App\Http\Controllers\AdminRouteAssignmentController;
 use App\Http\Controllers\DriverLogbookController;
 use App\Http\Controllers\DriverReminderController;
 use App\Http\Controllers\OptimalPathController;
@@ -122,6 +123,12 @@ Route::middleware(['auth', 'verified', 'check.suspension', 'admin'])->group(func
     Route::get('/admin/employees/{employee}/routes', [AdminEmployeeLogsController::class, 'getEmployeeRoutes'])->name('admin.employee.routes');
     Route::get('/admin/employees/{employee}/routes/statistics', [AdminEmployeeLogsController::class, 'getEmployeeRouteStatistics'])->name('admin.employee.routes.statistics');
     Route::get('/admin/routes/{route}/details', [AdminEmployeeLogsController::class, 'getRouteDetails'])->name('admin.route.details');
+
+    Route::get('/admin/assign-saved-route', [AdminRouteAssignmentController::class, 'index'])
+        ->name('admin.assign-saved-route');
+
+    Route::post('/admin/assign-saved-route/{route}', [AdminRouteAssignmentController::class, 'assign'])
+        ->name('admin.assign-saved-route.assign');
 });
 
 require __DIR__ . '/auth.php';

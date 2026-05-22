@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\DistanceMatrixController;
 use App\Http\Controllers\ShortestPathController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\DriverRouteController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,3 +24,15 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::post('/deriveTSP', [ShortestPathController::class, 'deriveTSP']);
+
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/driver/today-route', [DriverRouteController::class, 'todayRoute']);
+    Route::post('/driver/location', [DriverRouteController::class, 'storeLocation']);
+
+    Route::post('/driver/route/{route}/start', [DriverRouteController::class, 'startRoute']);
+    Route::post('/driver/route/{route}/complete', [DriverRouteController::class, 'completeRoute']);
+
+    Route::post('/driver/route/{route}/stop/{index}/status', [DriverRouteController::class, 'updateStopStatus']);
+});

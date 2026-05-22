@@ -60,4 +60,9 @@ class OptimalPath extends Model
             'completed_at' => now(),
         ]);
     }
+
+    public function employee()
+    {
+        return $this->belongsTo(User::class, 'employee_id');
+    }
 }
