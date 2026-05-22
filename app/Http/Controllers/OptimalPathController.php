@@ -85,6 +85,7 @@ class OptimalPathController extends Controller
                 'route' => $route,
                 'orderedStops' => $route->ordered_stops ?? [],
                 'googleMapsApiKey' => config('services.google.api_key'),
+                'driverUserId' => $route->employee_id ?? $route->user_id,
             ]);
         } catch (\Exception $e) {
             Log::error('Map Route Error:', ['message' => $e->getMessage()]);
