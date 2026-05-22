@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminEmployeeLogsController;
 use App\Http\Controllers\AdminEmployeeManagementController;
 use App\Http\Controllers\AdminRouteAssignmentController;
+use App\Http\Controllers\DriverLocationController;
 use App\Http\Controllers\DriverLogbookController;
 use App\Http\Controllers\DriverReminderController;
 use App\Http\Controllers\OptimalPathController;
@@ -51,6 +52,15 @@ Route::middleware(['auth', 'verified', 'check.suspension'])->group(function () {
     Route::post('/save-odometer-reading', [DriverLogbookController::class, 'saveOdometer'])->name('saveOdometerReading');
     Route::get('/driver-logs', [DriverLogbookController::class, 'getLogs'])->name('getDriverLogs');
     Route::delete('/driver-log/{id}', [DriverLogbookController::class, 'deleteLog'])->name('deleteDriverLog');
+
+    // ==========================================
+    // Driver Live Tracking Routes
+    // ==========================================
+    Route::post('/driver/location/update', [DriverLocationController::class, 'updateLocation'])
+        ->name('driver.location.update');
+
+    Route::get('/live-driver-locations', [DriverLocationController::class, 'liveLocations'])
+        ->name('live.driver.locations');
 
     // ==========================================
     // Driver Reminders Routes

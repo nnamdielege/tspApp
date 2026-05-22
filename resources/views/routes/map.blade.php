@@ -8,11 +8,18 @@
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                
+
                 <div class="lg:col-span-1 bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
                         Route Summary
                     </h3>
+
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Driver User ID</p>
+                        <p class="font-medium text-gray-900 dark:text-gray-100">
+                            {{ $driverUserId ?? 'N/A' }}
+                        </p>
+                    </div>
 
                     <div class="mb-4">
                         <p class="text-sm text-gray-500 dark:text-gray-400">Optimization</p>
@@ -39,7 +46,7 @@
                         @foreach($orderedStops as $index => $stop)
                             <div class="border rounded-lg p-3 dark:border-gray-700">
                                 <p class="font-semibold text-gray-900 dark:text-gray-100">
-                                    Stop {{ $index + 1 }}
+                                    {{ $index === 0 ? 'Driver / Start' : 'Stop ' . $index }}
                                 </p>
                                 <p class="text-sm text-gray-600 dark:text-gray-400">
                                     {{ $stop['address'] ?? 'Unknown address' }}
@@ -60,7 +67,7 @@
         const orderedStops = @json($orderedStops);
         const driverUserId = @json($driverUserId);
 
-        function initMap() {
+        window.initMap = function () {
             if (!orderedStops || orderedStops.length === 0) {
                 alert('No stops available for this route.');
                 return;
@@ -85,19 +92,23 @@
                     lng: parseFloat(stop.lng)
                 };
 
-                new google.maps.Marker({
+                const markerLabel = index === 0 ? `D${driverUserId}` : String(index);
+
+                const markerTitle = index === 0
+                    ? `Driver User ID: ${driverUserId}`
+                    : stop.address || `Stop ${index}`;
+
+                const marker = new google.maps.Marker({
                     position: position,
                     map: map,
-                    label: index === 0 ? `D${driverUserId}` : String(index),
-                    title: index === 0
-                        ? `Driver User ID: ${driverUserId}`
-                        : stop.address || `Stop ${index}`
+                    label: markerLabel,
+                    title: markerTitle
                 });
 
                 const infoWindow = new google.maps.InfoWindow({
                     content: `
                         <div style="padding: 4px 6px;">
-                            <strong>Stop ${index + 1}</strong><br>
+                            <strong>${index === 0 ? `Driver User ID: ${driverUserId}` : `Stop ${index}`}</strong><br>
                             ${stop.address || 'Unknown address'}
                         </div>
                     `
@@ -120,7 +131,7 @@
 
             polyline.setMap(map);
             map.fitBounds(bounds);
-        }
+        };
     </script>
 
     <script async defer
