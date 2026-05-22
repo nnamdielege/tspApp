@@ -58,6 +58,7 @@
 
     <script>
         const orderedStops = @json($orderedStops);
+        const driverUserId = @json($driverUserId);
 
         function initMap() {
             if (!orderedStops || orderedStops.length === 0) {
@@ -84,11 +85,13 @@
                     lng: parseFloat(stop.lng)
                 };
 
-                const marker = new google.maps.Marker({
+                new google.maps.Marker({
                     position: position,
                     map: map,
-                    label: String(index + 1),
-                    title: stop.address || `Stop ${index + 1}`
+                    label: index === 0 ? `D${driverUserId}` : String(index),
+                    title: index === 0
+                        ? `Driver User ID: ${driverUserId}`
+                        : stop.address || `Stop ${index}`
                 });
 
                 const infoWindow = new google.maps.InfoWindow({
