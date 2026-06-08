@@ -106,8 +106,10 @@
         </div>
     </div>
 
-    <!-- Google Maps -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBZS3gsCGlGQfezo4o3ooNJcR7N1QmPhjU"></script>
+    <!-- Google Maps -->    
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.api_key') }}">
+    </script>
 
     <script>
         let map;
