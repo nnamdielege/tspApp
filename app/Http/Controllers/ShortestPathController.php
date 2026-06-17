@@ -89,7 +89,13 @@ class ShortestPathController extends Controller
 
         if ($previousRequestData !== $currentRequestDataIdentifier) {
             // Clear the cache if the current request data is different from the previous request
-            Cache::flush();
+            // Cache::flush();
+
+            foreach ($locations as $origin) {
+                foreach ($locations as $destination) {
+                    Cache::forget('distance_' . md5($origin . '_' . $destination));
+                }
+            }
             // Store the current request data identifier in the cache
             Cache::put($cacheKey, $currentRequestDataIdentifier);
         }
