@@ -17,21 +17,15 @@ class CheckSuspension
     {
         // Check if user is authenticated and suspended
         if (auth()->check() && auth()->user()->is_suspended) {
-            // Logout the user
+            $reason = auth()->user()->suspension_reason ?? 'No reason provided';
+
             auth()->logout();
-
-            // Invalidate the session
             $request->session()->invalidate();
-
-            // Regenerate the token
             $request->session()->regenerateToken();
 
-            // Redirect to login with error message
             return redirect()->route('login')->with(
                 'error',
-                'Your account has been suspended. ' .
-                    'Reason: ' . (auth()->user()->suspension_reason ?? 'No reason provided') . '. ' .
-                    'Please contact your administrator for more information.'
+                'Your account has been suspended. Reason: ' . $reason . '. Please contact your administrator for more information.'
             );
         }
 
