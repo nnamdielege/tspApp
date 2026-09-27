@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\DistanceMatrixController;
 use App\Http\Controllers\ShortestPathController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DriverRouteController;

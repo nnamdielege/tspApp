@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UserSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -221,14 +220,5 @@ class UserSettingsController extends Controller
                 'message' => 'Failed to reset settings: ' . $e->getMessage()
             ], 500);
         }
-    }
-
-    /**
-     * Get available timezones
-     */
-    public function getTimezones()
-    {
-        $timezones = timezone_identifiers_list();
-        return response()->json($timezones);
     }
 }

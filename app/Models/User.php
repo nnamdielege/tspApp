@@ -42,16 +42,13 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'suspended_at' => 'datetime',
+        'unsuspended_at' => 'datetime',
     ];
 
     public function suspendedByAdmin()
     {
         return $this->belongsTo(User::class, 'suspended_by');
-    }
-
-    public function suspendedEmployees()
-    {
-        return $this->hasMany(User::class, 'suspended_by');
     }
 
     public function suspend($reason = null)
@@ -72,11 +69,6 @@ class User extends Authenticatable
         ]);
     }
 
-    public function isSuspended()
-    {
-        return $this->is_suspended === true;
-    }
-
     public function settings()
     {
         return $this->hasOne(UserSetting::class);
@@ -89,8 +81,4 @@ class User extends Authenticatable
         ]);
     }
 
-    public function assignedOptimalRoutes()
-    {
-        return $this->hasMany(OptimalPath::class, 'employee_id');
-    }
 }

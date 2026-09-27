@@ -42,7 +42,11 @@ return new class extends Migration
     {
         Schema::table('optimal_paths', function (Blueprint $table) {
             if (Schema::hasColumn('optimal_paths', 'employee_id')) {
-                $table->dropForeignKeyIfExists(['employee_id']);
+                try {
+                    $table->dropForeign(['employee_id']);
+                } catch (\Exception $e) {
+                    // Foreign key might not exist
+                }
                 $table->dropColumn('employee_id');
             }
             if (Schema::hasColumn('optimal_paths', 'status')) {

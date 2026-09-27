@@ -39,14 +39,6 @@ class AdminLogReminder extends Model
         return $this->belongsTo(User::class, 'employee_id');
     }
 
-    public function markAsSent()
-    {
-        $this->update([
-            'sent' => true,
-            'sent_at' => now(),
-        ]);
-    }
-
     public function markAsAcknowledged()
     {
         $this->update([

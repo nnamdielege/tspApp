@@ -35,16 +35,6 @@ class OptimalPath extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function odometerReadings()
-    {
-        return $this->hasMany(OdometerReading::class);
-    }
-
-    public function getLocationCountAttribute()
-    {
-        return count($this->locations ?? []);
-    }
-
     public function markAsStarted()
     {
         $this->update([
