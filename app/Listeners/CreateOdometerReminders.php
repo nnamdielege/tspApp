@@ -4,8 +4,6 @@ namespace App\Listeners;
 
 use App\Events\RouteOptimized;
 use App\Models\DriverReminder;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 class CreateOdometerReminders
 {

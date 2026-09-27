@@ -9,7 +9,6 @@ use App\Models\DriverReminder;
 use App\Models\AdminLogReminder;
 use App\Models\OptimalPath;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class AdminEmployeeLogsController extends Controller
