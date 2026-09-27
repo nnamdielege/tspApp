@@ -221,13 +221,4 @@ class UserSettingsController extends Controller
             ], 500);
         }
     }
-
-    /**
-     * Get available timezones
-     */
-    public function getTimezones()
-    {
-        $timezones = timezone_identifiers_list();
-        return response()->json($timezones);
-    }
 }

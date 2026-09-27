@@ -30,11 +30,6 @@ class DriverReminder extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function optimalPath()
-    {
-        return $this->belongsTo(OptimalPath::class);
-    }
-
     public function markAsCompleted()
     {
         $this->update([

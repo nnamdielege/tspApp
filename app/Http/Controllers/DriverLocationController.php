@@ -3,35 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\DriverLocation;
-use Illuminate\Http\Request;
 
 class DriverLocationController extends Controller
 {
-    /**
-     * Update driver's current location
-     */
-    public function updateLocation(Request $request)
-    {
-        $validated = $request->validate([
-            'lat' => 'required|numeric',
-            'lng' => 'required|numeric',
-        ]);
-
-        $location = DriverLocation::updateOrCreate(
-            ['driver_id' => auth()->id()],
-            [
-                'lat' => $validated['lat'],
-                'lng' => $validated['lng'],
-            ]
-        );
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Location updated successfully',
-            'location' => $location,
-        ]);
-    }
-
     /**
      * Get all live driver locations
      */

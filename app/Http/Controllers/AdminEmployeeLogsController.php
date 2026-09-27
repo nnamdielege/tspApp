@@ -14,14 +14,6 @@ use Illuminate\Support\Facades\Log;
 class AdminEmployeeLogsController extends Controller
 {
     /**
-     * Display employee logs dashboard
-     */
-    public function index()
-    {
-        return view('admin.employee-logs');
-    }
-
-    /**
      * Get all employees with their log status
      */
     public function getEmployeeLogsStatus(Request $request)
