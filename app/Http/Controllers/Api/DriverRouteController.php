@@ -56,11 +56,13 @@ class DriverRouteController extends Controller
             'lng' => ['required', 'numeric'],
         ]);
 
-        DriverLocation::create([
-            'driver_id' => $request->user()->id,
-            'lat' => $data['lat'],
-            'lng' => $data['lng'],
-        ]);
+        DriverLocation::updateOrCreate(
+            ['driver_id' => $request->user()->id],
+            [
+                'lat' => $data['lat'],
+                'lng' => $data['lng'],
+            ]
+        );
 
         return response()->json([
             'message' => 'Location saved',
