@@ -56,9 +56,6 @@ Route::middleware(['auth', 'verified', 'check.suspension'])->group(function () {
     // ==========================================
     // Driver Live Tracking Routes
     // ==========================================
-    Route::post('/driver/location/update', [DriverLocationController::class, 'updateLocation'])
-        ->name('driver.location.update');
-
     Route::get('/live-driver-locations', [DriverLocationController::class, 'liveLocations'])
         ->name('live.driver.locations');
 
@@ -66,14 +63,17 @@ Route::middleware(['auth', 'verified', 'check.suspension'])->group(function () {
     // Driver Reminders Routes
     // ==========================================
     Route::get('/driver-reminders/today', [DriverReminderController::class, 'getTodayReminders'])->name('getTodayReminders');
+    // TODO: unused - no employee-facing "pending reminders" screen has been built yet.
     Route::get('/driver-reminders/pending', [DriverReminderController::class, 'getPendingReminders'])->name('getPendingReminders');
     Route::get('/driver-reminders/statistics', [DriverReminderController::class, 'getStatistics'])->name('getReminderStatistics');
     Route::post('/driver-reminders/{id}/complete', [DriverReminderController::class, 'markAsCompleted'])->name('completeReminder');
+    // TODO: unused - dashboard's completeEndOfDay() JS just redirects to the logbook; this endpoint has no caller yet.
     Route::post('/driver-reminders/end-of-day/complete', [DriverReminderController::class, 'markEndOfDayComplete'])->name('completeEndOfDay');
 
     // ==========================================
     // Employee Reminders from Admin
     // ==========================================
+    // TODO: unused - employee-facing UI for viewing/acknowledging admin-sent reminders has not been built yet.
     Route::get('/reminders/received', [AdminEmployeeLogsController::class, 'getReceivedReminders'])->name('reminders.received');
     Route::post('/reminders/{id}/acknowledge', [AdminEmployeeLogsController::class, 'acknowledgeReminder'])->name('reminders.acknowledge');
 
@@ -88,7 +88,6 @@ Route::middleware(['auth', 'verified', 'check.suspension'])->group(function () {
     Route::post('/settings/preferences', [UserSettingsController::class, 'updatePreferences'])->name('settings.preferences');
     Route::post('/settings/vehicle', [UserSettingsController::class, 'updateVehicle'])->name('settings.vehicle');
     Route::post('/settings/reset', [UserSettingsController::class, 'resetSettings'])->name('settings.reset');
-    Route::get('/settings/timezones', [UserSettingsController::class, 'getTimezones'])->name('settings.timezones');
 
     // ==========================================
     // Profile Routes
@@ -125,7 +124,6 @@ Route::middleware(['auth', 'verified', 'check.suspension', 'admin'])->group(func
     Route::get('/admin/reminders', [AdminEmployeeLogsController::class, 'getAdminReminders'])->name('admin.reminders');
     Route::get('/admin/reminders/statistics', [AdminEmployeeLogsController::class, 'getReminderStatistics'])->name('admin.reminder-statistics');
     Route::get('/admin/missing-logs', [AdminEmployeeLogsController::class, 'getEmployeesWithMissingLogs'])->name('admin.missing-logs');
-    Route::post('/admin/reminders/{id}/acknowledge', [AdminEmployeeLogsController::class, 'acknowledgeReminder'])->name('admin.acknowledge-reminder');
 
     // ==========================================
     // Employee Routes Management (API)
