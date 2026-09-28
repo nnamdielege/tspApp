@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\DriverLocation;
 use App\Models\OptimalPath;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DriverRouteController extends Controller
 {
@@ -23,20 +24,6 @@ class DriverRouteController extends Controller
             ], 404);
         }
 
-        $stops = $route->ordered_stops;
-
-        if (is_string($stops)) {
-            $stops = json_decode($stops, true);
-        }
-
-        if (!$stops) {
-            $stops = $route->locations;
-
-            if (is_string($stops)) {
-                $stops = json_decode($stops, true);
-            }
-        }
-
         return response()->json([
             'id' => $route->id,
             'route_date' => optional($route->created_at)->toDateString(),
@@ -44,7 +31,7 @@ class DriverRouteController extends Controller
             'total_weight' => $route->total_weight,
             'optimize_type' => $route->optimize_type,
             'optimal_path' => $route->optimal_path,
-            'stops' => $stops ?? [],
+            'stops' => $route->resolvedStops(),
             'updated_at' => $route->updated_at,
         ]);
     }
@@ -107,33 +94,42 @@ class DriverRouteController extends Controller
             'status' => ['required', 'in:pending,arrived,delivered,failed'],
         ]);
 
-        $stops = $route->ordered_stops;
+        $stops = DB::transaction(function () use ($route, $index, $data) {
+            $locked = OptimalPath::whereKey($route->getKey())->lockForUpdate()->firstOrFail();
 
-        if (is_string($stops)) {
-            $stops = json_decode($stops, true);
-        }
+            // Materialise ordered_stops from the original locations the first
+            // time a stop is updated, so later reads/writes always work off
+            // ordered_stops. locations itself is never modified.
+            $stops = !empty($locked->ordered_stops) ? $locked->ordered_stops : $locked->resolvedStops();
 
-        if (!isset($stops[$index])) {
+            if (!isset($stops[$index])) {
+                return null;
+            }
+
+            $stops[$index]['status'] = $data['status'];
+
+            if ($data['status'] === 'arrived') {
+                $stops[$index]['arrived_at'] = now()->toDateTimeString();
+            }
+
+            if ($data['status'] === 'delivered') {
+                $stops[$index]['delivered_at'] = now()->toDateTimeString();
+            }
+
+            if ($data['status'] === 'failed') {
+                $stops[$index]['failed_at'] = now()->toDateTimeString();
+            }
+
+            $locked->update([
+                'ordered_stops' => $stops,
+            ]);
+
+            return $stops;
+        });
+
+        if ($stops === null) {
             return response()->json(['message' => 'Stop not found'], 404);
         }
-
-        $stops[$index]['status'] = $data['status'];
-
-        if ($data['status'] === 'arrived') {
-            $stops[$index]['arrived_at'] = now()->toDateTimeString();
-        }
-
-        if ($data['status'] === 'delivered') {
-            $stops[$index]['delivered_at'] = now()->toDateTimeString();
-        }
-
-        if ($data['status'] === 'failed') {
-            $stops[$index]['failed_at'] = now()->toDateTimeString();
-        }
-
-        $route->update([
-            'ordered_stops' => $stops,
-        ]);
 
         return response()->json([
             'message' => 'Stop status updated',

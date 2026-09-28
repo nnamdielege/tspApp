@@ -55,4 +55,15 @@ class OptimalPath extends Model
     {
         return $this->belongsTo(User::class, 'employee_id');
     }
+
+    /**
+     * The stops to use for driver-facing display and status tracking:
+     * ordered_stops when it has been populated, falling back to the
+     * original locations otherwise. Both attributes are array-cast, so
+     * no is_string/json_decode handling is needed here.
+     */
+    public function resolvedStops(): array
+    {
+        return !empty($this->ordered_stops) ? $this->ordered_stops : ($this->locations ?? []);
+    }
 }
